@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <title>URA Médica - Dr. Lucas</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; background: #f0f0f0; }
+        #chat { border: 1px solid #ccc; background: #fff; padding: 10px; height: 300px; overflow-y: scroll; margin-bottom: 10px; }
+        input[type="text"] { width: 70%; padding: 8px; }
+        button { padding: 8px 12px; }
+    </style>
+</head>
+<body>
+    <h2>URA Médica - Dr. Lucas</h2>
+    <div id="chat"></div>
+    <input type="text" id="pergunta" placeholder="Digite sua pergunta">
+    <button onclick="enviarPergunta()">Enviar</button>
+    <button onclick="limparChat()">Limpar</button>
+
+    <script>
+        function adicionarAoChat(texto, origem) {
+            const chat = document.getElementById('chat');
+            const msg = document.createElement('div');
+            msg.innerHTML = "<strong>" + origem + ":</strong> " + texto;
+            chat.appendChild(msg);
+            chat.scrollTop = chat.scrollHeight;
+        }
+
+        function enviarPergunta() {
+            const pergunta = document.getElementById('pergunta').value;
+            if (!pergunta.trim()) return;
+            adicionarAoChat(pergunta, "Você");
+            fetch('/pergunta', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ pergunta })
+            })
+            .then(response => response.json())
+            .then(data => adicionarAoChat(data.resposta, "URA"))
+            .catch(() => adicionarAoChat("Erro ao se comunicar com o servidor.", "URA"));
+            document.getElementById('pergunta').value = '';
+        }
+
+        function limparChat() {
+            document.getElementById('chat').innerHTML = '';
+        }
+    </script>
+</body>
+</html>
